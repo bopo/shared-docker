@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+  redis:
+    restart: always
+    image: redis:alpine
+  
+  nginx:
+    restart: always
+    image: nginx:alpine
+    depends_on:
+      - django
+    ports:
+      - "8080:80"
+    volumes:
+      - ./project/app:/app:Z  
+      - ./project/log:/var/log/nginx:Z
+      - ./project/etc/nginx.conf:/etc/nginx/nginx.conf:Z
+    env_file: ./project/app/env.docker
+
+  mysql:
+    restart: always
+    image: mysql:5.7
+    volumes:
+      - ./project/dbs/mysql:/var/lib/mysql:Z
+    env_file: ./project/app/env.docker
+
+  django:
+    restart: always
+    image: django:project
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    ports:
+      - "5005:5005"  
+      - "9009:9009"  
+    volumes:
+      - ./project/app:/app:Z
+      - ./project/log:/var/log/:Z
+      - ./project/app/env.docker:/app/.env:Z
+      - ./project/etc/supervisor:/etc/supervisor:Z
+    env_file: ./project/app/env.docker
+    command: /supervisor.sh
