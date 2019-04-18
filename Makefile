@@ -31,10 +31,10 @@ clean-pyc:
 
 fetch:
 	rm -rf ./compose/django/server && cp -r ../server ./compose/django/
-	test -d volumes/django || mkdir -p volumes && cp -r ../server volumes/django
-	test -d volumes/nginx || mkdir -p volumes/nginx/etc && cp volumes/django/env.docker volumes/nginx/.env
-	test -d volumes/redis || mkdir -p volumes/redis/etc && cp volumes/django/env.docker volumes/redis/.env
-	test -d volumes/postgres || mkdir -p volumes/postgres/etc && cp volumes/django/env.docker volumes/pgsql/.env
+	test -d volumes/django || (mkdir -p volumes && cp -r ../server volumes/django)
+	test -d volumes/nginx || (mkdir -p volumes/nginx/etc && cp volumes/django/env.docker volumes/nginx/.env)
+	test -d volumes/redis || (mkdir -p volumes/redis/etc && cp volumes/django/env.docker volumes/redis/.env)
+	test -d volumes/postgres || (mkdir -p volumes/postgres/etc && cp volumes/django/env.docker volumes/pgsql/.env)
 
 build:
 # 	docker build ./compose/postgres -t postgres:shared

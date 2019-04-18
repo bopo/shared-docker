@@ -8,7 +8,7 @@ COPY ./standard/server/requirements /app/requirements
 
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.9/main/' > /etc/apk/repositories
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.9/community/' >> /etc/apk/repositories
-RUN apk add --no-cache ca-certificates
+RUN apk add --update --no-cache ca-certificates
 RUN apk add --no-cache --virtual .build-deps  \
 		bzip2-dev \
 		coreutils \
@@ -36,8 +36,8 @@ RUN apk add --no-cache --virtual .build-deps  \
 		postgresql-dev \
 		zlib-dev
 
-RUN apk add --no-cache jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev libpq openssl-dev ncurses-dev
-RUN pip install --no-cache -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com pillow psycopg2-binary gunicorn meinheld
+RUN apk add --no-cache jpeg-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev libpq openssl-dev ncurses-dev supervisor
+RUN pip install --no-cache -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com pillow psycopg2-binary gunicorn meinheld 
 
 RUN pip install -r /app/requirements/pre.txt 
 RUN rm -rf /app/requirements 

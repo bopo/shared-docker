@@ -7,12 +7,12 @@ services:
     volumes:
       - ./volumes/redis/config:/root/.redis:Z  
 
-  rabbitmq:
-    restart: always
-    image: rabbitmq:alpine
-    volumes:
-      - ./volumes/rabbitmq/conf:/etc/rabbitmq/rabbitmq.config:Z  
-      - ./volumes/rabbitmq/data:/var/lib/rabbitmq:Z
+  # rabbitmq:
+  #   restart: always
+  #   image: rabbitmq:alpine
+  #   volumes:
+  #     - ./volumes/rabbitmq/conf:/etc/rabbitmq/rabbitmq.config:Z  
+  #     - ./volumes/rabbitmq/data:/var/lib/rabbitmq:Z
 
   minio:
     restart: always
@@ -20,18 +20,18 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - ./volumes/minio/conf:/root/.minio:Z  
+      # - ./volumes/minio/conf:/root/.minio:Z  
       - ./volumes/minio/data:/data:Z
-
-  thumbor:
-    restart: always
-    image: apsl/thumbor
-    ports:
-      - "3000:80"
-    volumes:
-      - ./volumes/thumbor/thumbor.conf:/usr/src/app/thumbor.conf.tpl:Z
-    env_file:
-      - env.thumbor
+    command: server /data
+  # thumbor:
+  #   restart: always
+  #   image: apsl/thumbor
+  #   ports:
+  #     - "3000:80"
+  #   volumes:
+  #     - ./volumes/thumbor/thumbor.conf:/usr/src/app/thumbor.conf.tpl:Z
+  #   env_file:
+  #     - env.thumbor
 
   elastic:
     restart: always
@@ -40,8 +40,9 @@ services:
       - "9200:9200"
       - "9300:9300"
     volumes:
-      - ./volumes/elastic/conf:/usr/share/elasticsearch/config:Z
+      # - ./volumes/elastic/conf:/usr/share/elasticsearch/config:Z
       - ./volumes/elastic/data:/usr/share/elasticsearch/data:Z
+      - ./volumes/elastic/logs:/usr/share/elasticsearch/logs:Z
     environment:
       - transport.host=0.0.0.0 
       - discovery.zen.minimum_master_nodes=1
@@ -54,18 +55,18 @@ services:
       - django
     ports:
       - "8080:80"
-    volumes:
-      - ./volumes/app:/app:Z  
-      - ./volumes/log:/var/log/nginx:Z
-      - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf:Z
-    env_file: ./volumes/app/env.docker
+    # volumes:
+      # - ./volumes/app:/app:Z  
+      # - ./volumes/nginx/log:/var/log/nginx:Z
+      # - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf:Z
+    # env_file: ./volumes/nginx/.env
 
   postgres:
     restart: always
     image: postgres:alpine
     volumes:
       - ./volumes/postgres/data:/var/lib/postgresql:Z
-    env_file: ./volumes/app/env.docker
+    env_file: ./volumes/postgres/.env
 
   django:
     restart: always
@@ -84,5 +85,5 @@ services:
       - ./volumes/django/log:/var/log/:Z
       - ./volumes/django/env.docker:/app/.env:Z
       - ./volumes/django/etc/supervisor:/etc/supervisor:Z
-    env_file: ./volumes/django/env.docker
+    env_file: ./volumes/django/.env
     command: /supervisor.sh
