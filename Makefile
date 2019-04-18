@@ -15,8 +15,7 @@ help:
 	@echo "restart  - 重启项目容器"
 
 doctor:
-	docker-compose run --rm discovery doctor
-	docker-compose run --rm imserver doctor
+	docker-compose run --rm shared doctor
 
 destry:
 	docker-compose rm -a -f
@@ -31,26 +30,17 @@ clean-pyc:
 	find . -name '__pycache__' -exec rm -fr {} +
 
 fetch:
-	test -d build/imserver || git clone --depth=1 https://github.com/bopo/goim.git build/imserver
-	test -d build/discovery || git clone --depth=1 https://github.com/bopo/discovery.git build/discovery
+	test -d volumes || mkdir -p volumes && cp -r ../server volumes/shared
+	test -d volumes/nginx || mkdir -p volumes/nginx/etc && cp volumes/shared/env.docker volumes/nginx/.env
+	test -d volumes/redis || mkdir -p volumes/redis/etc && cp volumes/shared/env.docker volumes/redis/.env
+	test -d volumes/pgsql || mkdir -p volumes/pgsql/etc && cp volumes/shared/env.docker volumes/pgsql/.env
 
 build: fetch
-	test -d volumes/discovery/config || mkdir -p volumes/discovery/config
-	test -d volumes/imserver/config || mkdir -p volumes/imserver/config
-
-	cp scripts/discovery/* build/discovery/
-	cd build/discovery && make build
-	cp -R build/discovery/target compose/discovery/standard	
-# 	cp -R build/discovery/target/config volumes/discovery/	
-	docker build ./compose/discovery -t discovery:standard
-
-	cd $(CWD)
-
-	cp scripts/imserver/* build/imserver/
-	cd build/imserver && make build
-	cp -R build/imserver/target compose/imserver/standard
-# 	cp -R build/imserver/target/config volumes/imserver/
-	docker build ./compose/imserver -t imserver:standard
+	cp -r ../server ./compose/django/standard/
+	docker build ./compose/postgres -t postgres:shared
+	docker build ./compose/django -t django:shared
+	docker build ./compose/python -t python:shared
+	docker build ./compose/nginx -t nginx:shared
 
 stop: 
 	docker-compose stop
