@@ -30,17 +30,17 @@ clean-pyc:
 	find . -name '__pycache__' -exec rm -fr {} +
 
 fetch:
-	test -d volumes || mkdir -p volumes && cp -r ../server volumes/shared
-	test -d volumes/nginx || mkdir -p volumes/nginx/etc && cp volumes/shared/env.docker volumes/nginx/.env
-	test -d volumes/redis || mkdir -p volumes/redis/etc && cp volumes/shared/env.docker volumes/redis/.env
-	test -d volumes/pgsql || mkdir -p volumes/pgsql/etc && cp volumes/shared/env.docker volumes/pgsql/.env
+	rm -rf ./compose/django/server && cp -r ../server ./compose/django/
+	test -d volumes/django || mkdir -p volumes && cp -r ../server volumes/django
+	test -d volumes/nginx || mkdir -p volumes/nginx/etc && cp volumes/django/env.docker volumes/nginx/.env
+	test -d volumes/redis || mkdir -p volumes/redis/etc && cp volumes/django/env.docker volumes/redis/.env
+	test -d volumes/postgres || mkdir -p volumes/postgres/etc && cp volumes/django/env.docker volumes/pgsql/.env
 
-build: fetch
-	cp -r ../server ./compose/django/standard/
-	docker build ./compose/postgres -t postgres:shared
+build:
+# 	docker build ./compose/postgres -t postgres:shared
 	docker build ./compose/django -t django:shared
-	docker build ./compose/python -t python:shared
-	docker build ./compose/nginx -t nginx:shared
+# 	docker build ./compose/python -t python:shared
+# 	docker build ./compose/nginx -t nginx:shared
 
 stop: 
 	docker-compose stop
