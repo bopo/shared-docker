@@ -70,8 +70,8 @@ fetch: volume
 
 build: fetch
 	docker build ./compose/postgres -t postgres:shared
+	docker build ./compose/thumbor -t thumbor:shared
 	docker build ./compose/django -t django:shared
-# 	docker build ./compose/python -t python:shared
 	docker build ./compose/nginx -t nginx:shared
 
 stop: 

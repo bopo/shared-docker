@@ -31,7 +31,9 @@ services:
   #   ports:
   #     - "3000:80"
   #   volumes:
-  #     - ./volumes/thumbor/thumbor.conf:/usr/src/app/thumbor.conf.tpl:Z
+  #     - ./volumes/thumbor/credentials.conf:~/.aws/credentials:Z
+  #     - ./volumes/thumbor/thumbor.conf:~/thumbor.conf:Z
+  #   command: thumbor ~/thumbor.conf
   #   env_file:
   #     - env.thumbor
 
