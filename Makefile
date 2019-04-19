@@ -22,6 +22,7 @@ destry:
 
 clean: clean-pyc
 	rm -rf build
+	rm -rf dist.tgz
 	rm -rf ./compose/django/server
 	rm -rf ./compose/django/standard/server
 
