@@ -42,12 +42,17 @@ volume:
 
 	mkdir -p ./volumes/django/data
 	mkdir -p ./volumes/django/conf
+	mkdir -p ./volumes/django/logs
 
 	mkdir -p ./volumes/redis/data
 	mkdir -p ./volumes/redis/conf
 
+	mkdir -p ./volumes/minio/data
+	mkdir -p ./volumes/minio/conf
+
 	mkdir -p ./volumes/nginx/data
 	mkdir -p ./volumes/nginx/conf	
+	mkdir -p ./volumes/nginx/logs	
 
 fetch: volume
 	rm -rf ./compose/django/standard/server && cp -r ../server ./compose/django/standard/
@@ -72,7 +77,7 @@ stop:
 	docker-compose stop
 
 start: 
-	docker-compose start
+	docker-compose up -d
 
 setup: build
 	docker-compose up -d
