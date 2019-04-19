@@ -5,7 +5,8 @@ services:
     restart: always
     image: redis:alpine
     volumes:
-      - ./volumes/redis/config:/root/.redis:Z  
+      - ./volumes/redis/conf:/root/.redis:Z  
+      - ./volumes/redis/data:/data:Z  
 
   # rabbitmq:
   #   restart: always
@@ -20,9 +21,10 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      # - ./volumes/minio/conf:/root/.minio:Z  
+      - ./volumes/minio/conf:/root/.minio:Z  
       - ./volumes/minio/data:/data:Z
     command: server /data
+
   # thumbor:
   #   restart: always
   #   image: apsl/thumbor
@@ -39,31 +41,36 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
-    volumes:
+    # volumes:
       # - ./volumes/elastic/conf:/usr/share/elasticsearch/config:Z
-      - ./volumes/elastic/data:/usr/share/elasticsearch/data:Z
-      - ./volumes/elastic/logs:/usr/share/elasticsearch/logs:Z
+      # - ./volumes/elastic/data:/usr/share/elasticsearch/data:Z
+      # - ./volumes/elastic/logs:/usr/share/elasticsearch/logs:Z
     environment:
-      - transport.host=0.0.0.0 
-      - discovery.zen.minimum_master_nodes=1
-      - -Des.node.name="TestNode"
+      # - transport.host=0.0.0.0 
+      # - discovery.zen.minimum_master_nodes=1
+      # - discovery.type=single-node
+      # - Des.node.name="TestNode"
+      # - cluster.name=docker-cluster
+      # - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"      
 
   nginx:
     restart: always
-    image: nginx:alpine
+    image: nginx:shared
     depends_on:
       - django
     ports:
       - "8080:80"
-    # volumes:
-      # - ./volumes/app:/app:Z  
-      # - ./volumes/nginx/log:/var/log/nginx:Z
-      # - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf:Z
-    # env_file: ./volumes/nginx/.env
+    volumes:
+      - ./volumes/django/data:/data:Z  
+      - ./volumes/nginx/logs:/var/log/nginx:Z
+      - ./volumes/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:Z
+    env_file: ./volumes/nginx/.env
 
   postgres:
     restart: always
-    image: postgres:alpine
+    image: postgres:shared
     volumes:
       - ./volumes/postgres/data:/var/lib/postgresql:Z
     env_file: ./volumes/postgres/.env
@@ -78,12 +85,18 @@ services:
       - postgres
       - redis
     ports:
-      - "5005:5005"  
+      - "5555:5555"
+      - "5005:5005"
       - "9009:9009"  
     volumes:
-      - ./volumes/django:/app:Z
-      - ./volumes/django/log:/var/log/:Z
-      - ./volumes/django/env.docker:/app/.env:Z
-      - ./volumes/django/etc/supervisor:/etc/supervisor:Z
+      - ./volumes/django/data:/app:Z
+      - ./volumes/django/logs:/var/log/:Z
+      - ./volumes/django/.env:/app/.env:Z
+      - ./volumes/django/conf/supervisor/supervisord.conf:/etc/supervisord.conf:Z
+      - ./volumes/django/conf/supervisor/supervisor.d:/etc/supervisor.d:Z
     env_file: ./volumes/django/.env
     command: /supervisor.sh
+
+  # docker-compose run --rm django python3 manage.py migrate
+  # docker-compose run --rm django python3 manage.py collectstatic --no-input
+  # docker-compose run --rm django python3 manage.py createsuperuser

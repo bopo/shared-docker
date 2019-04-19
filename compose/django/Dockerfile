@@ -1,7 +1,9 @@
 FROM python:alpine
 ENV PYTHONUNBUFFERED 1
 
-COPY ./standard/supervisor /etc/supervisor
+COPY ./standard/supervisor/supervisord.conf /etc/supervisord.conf
+COPY ./standard/supervisor/supervisor.d /etc/supervisor.d
+
 COPY ./standard/supervisor.sh /supervisor.sh
 COPY ./standard/entrypoint.sh /entrypoint.sh
 COPY ./standard/server/requirements /app/requirements

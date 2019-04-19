@@ -22,6 +22,8 @@ destry:
 
 clean: clean-pyc
 	rm -rf build
+	rm -rf ./compose/django/server
+	rm -rf ./compose/django/standard/server
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -29,18 +31,42 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
-fetch:
-	rm -rf ./compose/django/server && cp -r ../server ./compose/django/
-	test -d volumes/django || (mkdir -p volumes && cp -r ../server volumes/django)
-	test -d volumes/nginx || (mkdir -p volumes/nginx/etc && cp volumes/django/env.docker volumes/nginx/.env)
-	test -d volumes/redis || (mkdir -p volumes/redis/etc && cp volumes/django/env.docker volumes/redis/.env)
-	test -d volumes/postgres || (mkdir -p volumes/postgres/etc && cp volumes/django/env.docker volumes/pgsql/.env)
+volume:
+	rm -rf ./volumes
 
-build:
-# 	docker build ./compose/postgres -t postgres:shared
+	mkdir -p ./volumes/postgres/data
+	mkdir -p ./volumes/postgres/conf
+
+	mkdir -p ./volumes/elastic/data
+	mkdir -p ./volumes/elastic/conf
+
+	mkdir -p ./volumes/django/data
+	mkdir -p ./volumes/django/conf
+
+	mkdir -p ./volumes/redis/data
+	mkdir -p ./volumes/redis/conf
+
+	mkdir -p ./volumes/nginx/data
+	mkdir -p ./volumes/nginx/conf	
+
+fetch: volume
+	rm -rf ./compose/django/standard/server && cp -r ../server ./compose/django/standard/
+	cp -r ../server/* ./volumes/django/data
+
+	cp ./compose/nginx/nginx.conf volumes/nginx/conf
+	cp -R ./compose/django/standard/supervisor volumes/django/conf
+
+	cp volumes/django/data/env.docker volumes/postgres/.env
+	cp volumes/django/data/env.docker volumes/elastic/.env
+	cp volumes/django/data/env.docker volumes/django/.env
+	cp volumes/django/data/env.docker volumes/nginx/.env
+	cp volumes/django/data/env.docker volumes/redis/.env
+
+build: fetch
+	docker build ./compose/postgres -t postgres:shared
 	docker build ./compose/django -t django:shared
 # 	docker build ./compose/python -t python:shared
-# 	docker build ./compose/nginx -t nginx:shared
+	docker build ./compose/nginx -t nginx:shared
 
 stop: 
 	docker-compose stop
