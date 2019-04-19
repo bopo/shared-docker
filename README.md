@@ -4,6 +4,9 @@
 自动化部署即时通讯项目
 ----------------------
 
+https://segmentfault.com/a/1190000008656825
+https://www.jianshu.com/p/c0ded9565137
+
 ### 1.编译运行镜像
 
 ```
